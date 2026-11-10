@@ -22,5 +22,10 @@
           </main>`
       }
     </script>
+    <script type="module">
+      if (window.location.protocol !== 'file:') {
+        import('./src/main.tsx')
+      }
+    </script>
   </body>
 </html>
