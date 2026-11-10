@@ -80,6 +80,7 @@ export default function App() {
 
   const play = useCallback(async () => {
     const state = useEditorStore.getState()
+    if (!state.project.assets.length) { setNotice('먼저 오디오 파일을 가져오세요.'); return }
     try {
       const position = state.currentTime >= state.project.duration ? 0 : state.currentTime
       await audioEngine.play(state.project, position)
@@ -96,7 +97,14 @@ export default function App() {
   }, [setCurrentTime, setPlaying])
 
   const stop = useCallback(() => { audioEngine.stop(); setPlaying(false); setCurrentTime(0) }, [setCurrentTime, setPlaying])
-  const beginning = useCallback(() => { if (useEditorStore.getState().isPlaying) void play(); else setCurrentTime(0) }, [play, setCurrentTime])
+  const beginning = useCallback(() => {
+    if (useEditorStore.getState().isPlaying) {
+      audioEngine.stop()
+      setPlaying(false)
+      setCurrentTime(0)
+      void play()
+    } else setCurrentTime(0)
+  }, [play, setCurrentTime, setPlaying])
 
   useEffect(() => {
     if (!isPlaying) return
@@ -133,7 +141,7 @@ export default function App() {
       link.href = url
       link.download = `${project.name.replace(/[\\/:*?"<>|]/g, '_') || 'waveform'}.wav`
       link.click()
-      URL.revokeObjectURL(url)
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
       setNotice('WAV 파일을 내보냈습니다.')
     } catch (cause) { setNotice(cause instanceof Error ? cause.message : 'WAV 파일을 내보내지 못했습니다.') }
     finally { setBusy('') }

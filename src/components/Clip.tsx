@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import { useEditorStore } from '../store/editorStore'
 import { loadAsset } from '../storage/projectStorage'
@@ -29,26 +29,39 @@ export function Clip({ clip, zoom, pixelsPerSecond }: { clip: AudioClipData; zoo
   const moveClip = useEditorStore((state) => state.moveClip)
   const trimClip = useEditorStore((state) => state.trimClip)
   const pointer = useRef<{ mode: 'move' | 'start' | 'end'; x: number; start: number; duration: number } | null>(null)
+  const [draft, setDraft] = useState<{ start: number; duration: number } | null>(null)
   const pixelsPerSecondZoomed = pixelsPerSecond * zoom
-  return <div role="button" tabIndex={0} className={`audio-clip ${clip.color} ${selected ? 'selected' : ''}`} style={{ left: clip.timelineStart * pixelsPerSecondZoomed, width: Math.max(24, clip.duration * pixelsPerSecondZoomed) }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectClip(clip.id) } }} onPointerDown={(event) => {
+  const start = draft?.start ?? clip.timelineStart
+  const duration = draft?.duration ?? clip.duration
+  return <div role="button" tabIndex={0} className={`audio-clip ${clip.color} ${selected ? 'selected' : ''}`} style={{ left: start * pixelsPerSecondZoomed, width: Math.max(24, duration * pixelsPerSecondZoomed) }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectClip(clip.id) } }} onPointerDown={(event) => {
     if (event.button !== 0) return
     event.stopPropagation()
     event.preventDefault()
     const mode = (event.target as HTMLElement).closest('.trim-handle')?.getAttribute('data-edge') as 'start' | 'end' | null
     pointer.current = { mode: mode ?? 'move', x: event.clientX, start: clip.timelineStart, duration: clip.duration }
+    setDraft({ start: clip.timelineStart, duration: clip.duration })
     selectClip(clip.id)
     event.currentTarget.setPointerCapture(event.pointerId)
   }} onPointerMove={(event) => {
     const drag = pointer.current
     if (!drag || !event.currentTarget.hasPointerCapture(event.pointerId)) return
     const delta = snap((event.clientX - drag.x) / pixelsPerSecondZoomed)
-    if (drag.mode === 'move') {
-      const targetTrack = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-track-id]')?.dataset.trackId
-      moveClip(clip.id, snap(drag.start + delta), targetTrack)
+    if (drag.mode === 'move') setDraft({ start: snap(drag.start + delta), duration: drag.duration })
+    else if (drag.mode === 'start') { const nextStart = Math.max(0, Math.min(drag.start + drag.duration - 0.1, snap(drag.start + delta))); setDraft({ start: nextStart, duration: drag.start + drag.duration - nextStart }) }
+    else setDraft({ start: drag.start, duration: Math.max(0.1, drag.duration + delta) })
+  }} onPointerUp={(event) => {
+    const drag = pointer.current
+    if (drag && draft) {
+      if (drag.mode === 'move') {
+        const targetTrack = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-track-id]')?.dataset.trackId
+        moveClip(clip.id, draft.start, targetTrack)
+      } else if (drag.mode === 'start') trimClip(clip.id, 'start', draft.start)
+      else trimClip(clip.id, 'end', draft.start + draft.duration)
     }
-    else if (drag.mode === 'start') trimClip(clip.id, 'start', snap(drag.start + delta))
-    else trimClip(clip.id, 'end', snap(drag.start + drag.duration + delta))
-  }} onPointerUp={(event) => { pointer.current = null; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId) }} onPointerCancel={() => { pointer.current = null }} aria-pressed={selected} title={`${clip.name} · 드래그하여 이동, 양쪽 손잡이로 자르기`}>
+    pointer.current = null
+    setDraft(null)
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+  }} onPointerCancel={() => { pointer.current = null; setDraft(null) }} aria-pressed={selected} title={`${clip.name} · 드래그하여 이동, 양쪽 손잡이로 자르기`}>
     <span className="trim-handle trim-start" data-edge="start" aria-label="클립 시작 부분 자르기" />
     <span className="clip-label"><span className="clip-dot" />{clip.name}</span>
     <Waveform clip={clip} />
