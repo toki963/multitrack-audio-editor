@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101114" />
+    <meta name="description" content="A desktop-first multitrack audio editing workspace." />
+    <title>Waveform — Audio workspace</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if (window.location.protocol === 'file:') {
+        document.documentElement.lang = 'ko'
+        document.getElementById('root').innerHTML = `
+          <main style="max-width:640px;margin:12vh auto;padding:32px;font:16px/1.6 Segoe UI,Arial,sans-serif;color:#e8e7eb;background:#191a1f;border:1px solid #34343b;border-radius:12px">
+            <p style="color:#b49bf9;font-size:12px;letter-spacing:.12em">WAVEFORM · PHASE 1</p>
+            <h1 style="font-size:25px">개발 서버로 실행해 주세요</h1>
+            <p>이 프로젝트는 React와 TypeScript를 사용하므로 <code>index.html</code>을 파일로 직접 열 수 없습니다. 아래 명령을 프로젝트 폴더에서 실행한 뒤, Vite가 표시하는 주소(보통 <code>http://localhost:5173</code>)를 여세요.</p>
+            <pre style="padding:14px;background:#101114;border-radius:8px;color:#cbbaff">pnpm install\npnpm dev</pre>
+            <p style="color:#9997a2;font-size:13px">앱 자체는 백엔드 없이 브라우저에서 실행됩니다. Vite는 개발 중 파일을 제공하기 위한 로컬 서버입니다.</p>
+          </main>`
+      }
+    </script>
+  </body>
+</html>
