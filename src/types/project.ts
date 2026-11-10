@@ -17,6 +17,8 @@ export interface AudioAsset {
   name: string
   mimeType: string
   duration: number
+  sampleRate: number
+  channels: number
 }
 
 export interface Track {
@@ -31,8 +33,16 @@ export interface Track {
 }
 
 export interface EditorProject {
+  id: string
   name: string
   tracks: Track[]
   duration: number
-  assets?: AudioAsset[]
+  assets: AudioAsset[]
+  updatedAt: number
+}
+
+export interface ProjectSummary {
+  id: string
+  name: string
+  updatedAt: number
 }

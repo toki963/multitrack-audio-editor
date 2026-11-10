@@ -1,28 +1,37 @@
-import { AudioLines, ChevronDown, CircleHelp, Download, FolderOpen, Headphones, Plus, Redo2, Save, Undo2, Upload } from 'lucide-react'
+import { AudioLines, ChevronDown, Download, FolderOpen, Plus, Save, Undo2, Redo2, Upload } from 'lucide-react'
+import { useRef } from 'react'
 import { useEditorStore } from '../store/editorStore'
 import { Icon } from './Icon'
 
-function UnavailableAction({ icon, label }: { icon: typeof Upload; label: string }) {
-  return <button className="toolbar-button disabled-action" type="button" disabled title={`${label} 기능은 다음 단계에서 제공됩니다`}><Icon icon={icon} /><span>{label}</span></button>
+interface HeaderProps {
+  onOpen: () => void
+  onSave: () => void
+  onImport: (files: FileList | null) => void
+  onExport: () => void
+  onNew: () => void
 }
 
-export function Header() {
-  const newProject = useEditorStore((state) => state.newProject)
+export function Header({ onOpen, onSave, onImport, onExport, onNew }: HeaderProps) {
+  const input = useRef<HTMLInputElement>(null)
+  const project = useEditorStore((state) => state.project)
+  const undo = useEditorStore((state) => state.undo)
+  const redo = useEditorStore((state) => state.redo)
+  const canUndo = useEditorStore((state) => state.undoStack.length > 0)
+  const canRedo = useEditorStore((state) => state.redoStack.length > 0)
   return <header className="topbar">
     <a className="brand" href="#workspace" aria-label="Waveform 홈"><span className="brand-mark"><AudioLines size={19} /></span><span>waveform<span className="brand-dot">.</span></span></a>
     <div className="topbar-divider" />
-    <div className="project-menu"><span className="project-name">{useEditorStore((state) => state.project.name)}</span><ChevronDown size={14} /></div>
-    <div className="toolbar-group history-tools"><button className="icon-button" type="button" disabled title="되돌릴 작업이 없습니다"><Icon icon={Undo2} /></button><button className="icon-button" type="button" disabled title="다시 실행할 작업이 없습니다"><Icon icon={Redo2} /></button></div>
+    <div className="project-menu"><span className="project-name">{project.name}</span><ChevronDown size={14} /></div>
+    <div className="toolbar-group history-tools"><button className="icon-button" type="button" disabled={!canUndo} title="실행 취소 (Ctrl+Z)" aria-label="실행 취소" onClick={undo}><Icon icon={Undo2} /></button><button className="icon-button" type="button" disabled={!canRedo} title="다시 실행 (Ctrl+Shift+Z)" aria-label="다시 실행" onClick={redo}><Icon icon={Redo2} /></button></div>
     <div className="topbar-spacer" />
     <nav className="header-actions" aria-label="프로젝트 작업">
-      <button className="toolbar-button new-project-button" type="button" onClick={newProject}>새 프로젝트</button>
-      <UnavailableAction icon={FolderOpen} label="열기" />
-      <UnavailableAction icon={Save} label="저장" />
-      <UnavailableAction icon={Upload} label="가져오기" />
-      <UnavailableAction icon={Download} label="내보내기" />
-      <button className="avatar-button" aria-label="오디오 작업 공간" title="내 컴퓨터의 오디오 작업 공간" type="button"><Headphones size={16} /></button>
-      <button className="help-button" aria-label="미리보기 안내" title="1단계 화면 미리보기" type="button"><CircleHelp size={16} /></button>
+      <button className="toolbar-button new-project-button" type="button" onClick={onNew}>새 프로젝트</button>
+      <button className="toolbar-button" type="button" onClick={onOpen}><Icon icon={FolderOpen} /><span>열기</span></button>
+      <button className="toolbar-button" type="button" onClick={onSave}><Icon icon={Save} /><span>저장</span></button>
+      <button className="toolbar-button" type="button" onClick={() => input.current?.click()}><Icon icon={Upload} /><span>오디오 가져오기</span></button>
+      <button className="toolbar-button export-button" type="button" onClick={onExport}><Icon icon={Download} /><span>WAV 내보내기</span></button>
+      <input ref={input} className="visually-hidden" type="file" accept="audio/*,.wav,.mp3,.ogg,.m4a,.flac,.aac" multiple onChange={(event) => { onImport(event.target.files); event.currentTarget.value = '' }} />
     </nav>
-    <button className="mobile-new" type="button" onClick={newProject} aria-label="새 프로젝트"><Plus size={18} /></button>
+    <button className="mobile-new" type="button" onClick={() => input.current?.click()} aria-label="오디오 가져오기"><Plus size={18} /></button>
   </header>
 }
