@@ -1,31 +1,33 @@
-# Waveform multitrack editor
+# Waveform 멀티트랙 오디오 편집기
 
-Phase 1 is a responsive React, TypeScript, and Vite interface prototype. The starter tracks and clips are visual sample data; they are not audio files and do not produce sound.
+1단계에서는 React, TypeScript, Vite로 만든 반응형 편집 화면을 제공합니다. 기본 트랙과 클립은 화면을 위한 예시 데이터이며 실제 오디오 파일이 아니고 소리도 재생되지 않습니다.
 
-## Run locally
+## 로컬에서 실행하기
 
-Install dependencies with `pnpm install`, then start the development server with `pnpm dev`. Open the local URL printed by Vite. `npm run dev` is also available in a standard Node.js/npm installation.
+Node.js와 npm이 정상 설치된 환경에서 프로젝트 폴더를 열고 `npm install`로 필요한 패키지를 설치한 뒤 `npm run dev`를 실행하세요. 터미널에 표시되는 로컬 주소를 브라우저에서 엽니다. pnpm을 사용하는 경우 `pnpm install`과 `pnpm dev`를 실행할 수 있습니다.
 
-## Publish with GitHub Pages
+앱은 백엔드 없이 브라우저에서 실행됩니다. 패키지 설치는 개발 서버와 화면을 만드는 데 필요한 라이브러리를 내려받기 위한 과정입니다. `index.html`을 파일로 직접 열면 앱이 실행되지 않습니다.
 
-The included GitHub Actions workflow installs dependencies, runs the tests, builds the site with the repository path, and deploys the `dist` directory to GitHub Pages after pushes to `main`. In the repository settings, select **Settings → Pages → Build and deployment → GitHub Actions**. The repository must allow GitHub Pages for the account's plan and visibility.
+## GitHub Pages에 배포하기
 
-## Current scope
+포함된 GitHub Actions 워크플로는 `main` 브랜치에 변경 사항을 올릴 때 패키지를 설치하고 테스트와 빌드를 실행한 뒤 `dist` 폴더를 GitHub Pages에 배포합니다. 저장소 설정에서 **Settings → Pages → Build and deployment → GitHub Actions**를 선택하세요. 계정 공개 범위와 요금제가 GitHub Pages를 지원해야 합니다.
 
-- Main project header and action layout.
-- Desktop track panel and horizontally scrollable timeline, with a simplified mobile layout and fixed transport area.
-- Reusable track controls and clip components.
-- Working UI state for creating an empty project, adding tracks, selecting sample clips, adjusting track volume, toggling mute/solo indicators, and zooming the timeline.
-- Timeline coordinate and ruler formatting helpers with unit tests.
+## 현재 구현된 기능
 
-Import, save/open, undo/redo, playback, audio processing, and WAV export are deliberately disabled until their storage and audio-engine phases are implemented. Waveform shapes and the master meter are visual samples only.
+- 프로젝트 헤더와 편집 작업 화면
+- 데스크톱 트랙 패널과 가로 스크롤 타임라인, 간소화된 모바일 화면, 하단 재생 컨트롤 영역
+- 재사용 가능한 트랙 컨트롤 및 클립 구성 요소
+- 새 빈 프로젝트 만들기, 트랙 추가, 예시 클립 선택, 트랙 음량 조절, 음소거/솔로 표시 전환, 타임라인 확대/축소
+- 타임라인 위치 계산 및 눈금 표시 도우미와 단위 테스트
 
-## Checks
+오디오 가져오기, 프로젝트 열기/저장, 실행 취소/다시 실행, 재생, 오디오 처리, WAV 내보내기는 저장 기능과 오디오 엔진이 구현될 때까지 사용할 수 없습니다. 파형과 마스터 미터는 화면 예시입니다.
 
-- `pnpm test` runs the timeline helper tests.
-- `pnpm typecheck` checks the TypeScript project.
-- `pnpm build` runs the TypeScript check and creates the production build.
+## 검사 명령
 
-## Next development task
+- `npm test`: 타임라인 도우미 테스트 실행
+- `npm run typecheck`: TypeScript 검사
+- `npm run build`: TypeScript 검사 후 배포용 파일 생성
 
-Implement the audio asset and project data model, then add browser-local import and IndexedDB persistence before wiring decoded waveforms and synchronized Web Audio playback.
+## 다음 개발 단계
+
+오디오 파일 및 프로젝트 데이터 구조를 구현한 다음, 브라우저에서 파일을 가져오고 IndexedDB에 저장하는 기능을 추가합니다. 이후 파형을 읽어 오고 Web Audio로 재생을 동기화합니다.

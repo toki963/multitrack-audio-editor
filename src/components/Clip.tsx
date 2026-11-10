@@ -15,7 +15,7 @@ function Waveform({ color, id }: { color: AudioClip['color']; id: string }) {
 export function Clip({ clip, zoom, duration }: { clip: AudioClip; zoom: number; duration: number }) {
   const selected = useEditorStore((state) => state.selectedClipId === clip.id)
   const selectClip = useEditorStore((state) => state.selectClip)
-  return <button type="button" className={`audio-clip ${clip.color} ${selected ? 'selected' : ''}`} style={{ left: `${secondsToPercent(clip.timelineStart, duration) * zoom}%`, width: `${Math.max(0, Math.min(100 * zoom, clip.duration / duration * 100 * zoom))}%` }} onClick={() => selectClip(clip.id)} aria-pressed={selected} title={`${clip.name} — select clip`}>
+  return <button type="button" className={`audio-clip ${clip.color} ${selected ? 'selected' : ''}`} style={{ left: `${secondsToPercent(clip.timelineStart, duration) * zoom}%`, width: `${Math.max(0, Math.min(100 * zoom, clip.duration / duration * 100 * zoom))}%` }} onClick={() => selectClip(clip.id)} aria-pressed={selected} title={`${clip.name} — 클립 선택`}>
     <span className="clip-label"><span className="clip-dot" />{clip.name}</span><Waveform color={clip.color} id={clip.id} />
   </button>
 }
