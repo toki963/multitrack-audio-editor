@@ -7,7 +7,7 @@ export default defineConfig({
     {
       name: 'waveform-entry',
       transformIndexHtml: {
-        order: 'post',
+        order: 'pre',
         handler() {
           return [{ tag: 'script', attrs: { type: 'module', src: '/src/main.tsx' }, injectTo: 'body' }]
         },
